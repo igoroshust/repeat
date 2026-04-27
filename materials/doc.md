@@ -8,6 +8,222 @@
 
 - csrf token - CSRF (Cross-Site Request Forgery) — атака, когда злоумышленник заставляет авторизованного пользователя выполнить нежелательное действие.
 
+- Дженерики
+
+- SQLAlchemy
+
+- Оптимизация ORM-запросов в Django
+
+
+# Контекст
+context - python-словарь `{'key': value}`, который Django передаёт в шаблон для рендера
+```python
+context = {
+    'object_list': <QuerySet>,
+    'page_obj': <Page>,
+    'categories': <QuerySet>,
+}
+return render(request, 'template.html', context)
+```
+
+# Дженерики
+Дженерики - готовый классы-представления для типичных задач (CRUD), избавляющие от написания boilerplate-кода. 
+
+**Основные группы**
+- ListView
+- DetailView
+- CreateView
+- UpdateView
+- DeleteView
+- SearchView
+- ArchiveView
+- YearArchiveView, MonthArchive
+
+## Полный CRUD
+
+views
+```python
+
+from django.view.generic import (ListView, DetailView, CreateView, UpdateView, DeleteView)
+from django.urls import reverse_lazy
+from .models import Article
+
+# Список
+class ArticleListView(ListView):
+    model = Article
+    paginate_by = 10
+
+# Детали
+class ArticleDetailView(DetailView):
+    model = Article
+
+# Создание
+class ArticleCreateView(CreateLiew):
+    model = Article
+    fields = ['title', 'content', 'category']
+    success_url = reverse_lazy('article_list')
+
+# Редактирование
+class ArticleUpdateView(UpdateView):
+    model = Article
+    fields = ['title', 'content', 'category']
+    success_url = reverse_lazy('article_list')
+
+# Удаление
+class ArticleDeleteView(DeleteView):
+    model = Article
+    success_url = reverse_lazy('article_list')
+```
+
+urls
+```python
+urlpatterns = [
+    path('articles/', ArticleListView.as_view(), name='article_list'),
+    path('articles/<int:pk>', ArticleListView.as_view(), name='article_detail'),
+    path('articles/new/', ArticleCreateView.as_view(), name='article_create'),
+    path('articles/<int:pk>/edit/', ArticleUpdateView.as_view(), name='article_update'),
+    path('articles/<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete'),
+]
+```
+
+## Пример расширенной настройки
+```python
+class ArticleListView(ListView):
+    model = Article
+    context_object_name = 'articles'
+    paginate_by = 10
+    template_name = 'articles/list.html'
+
+    def get_queryset(self):
+        """Фильтрация + поиск"""
+
+        # queryset - данные
+
+        queryset = Article.objects.filter(published=True)
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(title__icontains=search)
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        """Дополнительный контекст"""
+
+        # context - словарь для шаблона
+
+        # 1. Категории для фильтра
+        context['categories'] = Category.objects.all()
+        
+        # 2. Поисковый запрос
+        context['search_query'] = self.request.GET.get('search', '')
+        
+        # 3. Статистика
+        context['total_articles'] = Article.objects.filter(published=True).count()
+        
+        # 4. Рекомендации
+        context['recommended'] = Article.objects.filter(
+            category__popular=True
+        )[:3]
+        
+        return context
+```
+
+**разница context и queryset**
+```python
+queryset  =  "коробка с яблоками"  (данные)
+context   =  "поднос с коробкой + вилка + салфетка"  (данные + допы)
+
+Шаблон видит только поднос (context)!
+```
+
+Пример
+```python
+
+class ArticleListView(ListView):
+    model = Article
+    template_name = 'articles/list.html'
+    
+    # 1. context_object_name - ИМЯ переменной в шаблоне (вместо object_list)
+    context_object_name = 'articles'
+    
+    # 2. queryset - кастомный QuerySet
+    queryset = Article.objects.filter(published=True).order_by('-created_at')
+    
+    # 3. paginate_by - пагинация
+    paginate_by = 10
+    paginate_orphans = 2
+    
+    # 4. get_queryset() - динамический queryset
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(title__icontains=search)
+        return queryset
+
+```
+
+Пример с фильтрацией и поиском
+```python
+class ArticleListView(ListView):
+    model = Article
+    template_name = 'articles/list.html'
+    context_object_name = 'articles'
+    paginate_by = 10
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+    
+    def get_queryset(self):
+        queryset = Article.objects.all()
+        search = self.request.GET.get('search')
+        category = self.request.GET.get('category')
+        
+        if search:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search) |
+                models.Q(content__icontains=search)
+            )
+        
+        if category:
+            queryset = queryset.filter(category__slug=category)
+            
+        return queryset.order_by('-created_at')
+```
+
+Пример с вебинара
+```python
+from django.shortcuts import get_object_or_404
+from .models import Author
+
+class AuthorList(ListView):
+    model = Author
+    context_object_name = 'Authors'
+    template_name = 'newapp/authors.html'
+
+    def get_queryset(self):
+        self.authorUser = get_object_or_404(Author, name=self.args[0])
+        return Author.objects.filter(authorUser=self.authorUser)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Типы импортов
 
 ![alt text](image-15.png)
