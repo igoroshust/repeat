@@ -14,6 +14,28 @@
 
 - Оптимизация ORM-запросов в Django
 
+- Celery + разница shared_task и shedules
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Контекст
 context - python-словарь `{'key': value}`, который Django передаёт в шаблон для рендера
