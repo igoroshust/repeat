@@ -17,6 +17,102 @@
 - Celery + разница shared_task и shedules
 
 
+# Логирование
+5 уровней логирования:
+- DEBUG -10
+- INFO -20
+- WARNING -30
+- ERROR (влияют на работу приложения) -40
+- CRYTICAL (упал сервер) -50
+
+## Виды логирования
+1. Логгеры. Объекты из стандартной библиотеки Python `logging`, которые используются для записи событий, ошибок, отладочной информации и других сообщений в лог-файлы или консоль. Позволяют гибко настраивать уровни логгирования, обработчики и форматы вывода.
+2. Хэндлеры (обработчик, определяющий поведение логгеров - вывод в консоль, записать в файл). Определяют хранение и вывод логгеров.
+3. Фильтры (дополнительный контроль, какие сообщения будут переданы из логгера в обработчик - например, обрабатываем только "error")
+4. Форматтеры (внешний вид лога)
+
+**У одного логгера может быть несколько хэндлеров**
+
+## Настройка логгеров
+settings.py
+```python
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_logger': False,  # вкл/выкл дебаг джанго
+    # Логгеры
+    'loggers': {
+        'django': {
+            # Сюда можно передавать версию, логгеры, хэндлеры, фильтры, форматтеры, disable_existing_logger
+
+            'handlers': ['news'],  # Название приложения
+            'level': 'DEBUG',
+        },
+    },
+    # Обработчики
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',  # Вывод DEBUG в консоль
+        },
+        # Имя приложения
+        'news' : {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',  # способ обработки хэндлера
+            'filename': 'debug.log',
+            'formatter': 'myformatter',
+            'filters': ['require_debug_false',],
+        },
+    },
+    # Форматтеры
+    'formatters': {
+        'myformatter': {
+            'format': '{ levelname } { message } { asctime }',
+            'datetime': '%Y.%m.%d %H:%M:%S',
+            'style': '{',
+        },
+    },
+    # Фильтры
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        # 'require_debug_true': {
+        #     '()': 'django.utils.log.RequireDebugTrue,
+        # }
+    }
+}
+
+```
+
+views.py
+```python
+import logging
+
+logger = logging.getLogger(__name__)  # __name__ берёт название приложения как имя логгера
+
+def index(request):
+    logger.info('INFO')
+    news = New.objects.all()
+    return render(request, 'index.html', context={'news': news})
+```
+
+В итоге создаётся файл `debug.log`, в который при переходе на страницу с view будет записываться лог
+
+
+### try/except в логгировании
+views.py
+```python
+
+def index(request):
+    try:
+        news = News.objects.all()
+    except Exception as E:
+        logger.error(E)
+    return render(request, 'index.html', context={'news': news})
+```
+
+## Принцип работы оповещений
+![alt text](image-22.png)
 
 
 
@@ -34,6 +130,10 @@
 
 
 
+# Пакеты
+`Пакеты` - различные компоненты программного обеспечения
+
+`Система управления пакетами` - набор программного обеспечения, позволяющего управлять процессом установки, удаления, настройки и обновления программного обеспечения.
 
 
 
