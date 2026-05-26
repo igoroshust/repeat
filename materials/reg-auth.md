@@ -134,3 +134,94 @@ Browser                          Django                      Template
 ```
 
 ![alt text](image-34.png)
+
+
+
+# Регистрация
+
+## Новое приложение
+```
+python manage.py startapp auth
+```
+
+## Форма регистрации пользователя
+`auth/forms.py`
+
+```python
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+class SignUpForm(UserCreationForm):
+    email = forms.EmailField(label="Email")
+    first_name = forms.CharField(label="Имя пользователя")
+    last_name = forms.CharField(label="Фамилия")
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+        )
+```
+
+## Представление
+`auth/viws.py`
+
+```python
+
+from django.contrib.auth.models import User
+from django.views.generic.edit import CreateView
+from .forms import SignUpForm
+
+class SignUpView(CreateView):
+    model = User
+    form = SignUpForm
+    success_url = '/auth/login'
+    template_name = 'registration/signup.html'
+
+```
+
+## Шаблон
+`registration/signup.html`
+```python
+
+{% block content %}
+
+<form method="post">
+{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Sign up">
+</form>
+
+{% endblock content %}
+```
+
+## Маршруты приложения
+`auth/urls.py`
+```python
+from django.urls import path
+from .views import SignUpView
+
+urlpatterns = [
+    path('signup/', SignUpView.as_view(), name='signup'),
+]
+```
+
+## Маршруты проекта
+`backend/urls.py`
+```python
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlspatterns = [
+    path("admin/", admin.site.urls),
+    path("auth/", include('django.contrib.auth.urls')),
+    path("auth/", include('auth.urls')),  # Добавили эту строчку
+]
+```
