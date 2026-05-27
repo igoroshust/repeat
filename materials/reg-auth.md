@@ -180,7 +180,7 @@ from .forms import SignUpForm
 
 class SignUpView(CreateView):
     model = User
-    form = SignUpForm
+    form_class = SignUpForm
     success_url = '/auth/login'
     template_name = 'registration/signup.html'
 
@@ -225,3 +225,88 @@ urlspatterns = [
     path("auth/", include('auth.urls')),  # Добавили эту строчку
 ]
 ```
+
+# allauth
+
+## Устанавливаем приложение
+```bash
+pip install django-allauth
+```
+
+## Настройки
+`backend/settings.py`
+```python
+
+INSTALLED_APPS = [
+    'django.contrib.auth',  # Убедиться в наличии (базовая система аутентификации Django)
+    'django.contrib.messages',  # Убедиться в наличии (flash-сообщения: успех/ошибка при входе)
+    'django.contrib.sites',  # Убедиться в наличии (приложение с настройками сайта в таблице django_site)
+
+    'allauth',  # Ядро пакета
+    'allauth.account',  # Управление аккаунтами (регистрация, вход, пароли)
+    'allauth.socialaccount',  # Социальные аккаунты (OAuth-провайдеры)
+    'allauth.socialaccount.providers.yandex',  # Провайдер для Яндекса
+]
+
+TEMPLATES = {
+    ...
+    'context_processors': [
+        ...
+
+        'django.template.context_processors.request',  # Объект 'request' доступен в шаблонах 
+    ]
+}
+
+# Методы проверки кредов (логин/пароль)
+AUTHENTICATION_BACKENDS = {
+    'django.contrib.auth.backends.ModelBackend',  # Аутентификация по username
+    'allauth.account.auth_backends.AuthenticationBackend',  # Бэкенд аутентификации пакета allauth (специфичная по email или сервис-провайдеру)
+}
+
+SITE_ID = 1  # Управление проектом несколькими сайтами (ID текущего сайта в таблице `django_site`)
+
+# Промежуточное ПО (проверка на каждом запросе)
+MIDDLEWARE = (
+    ...
+    'allauth.account.middleware.AccountMiddleware',  # Проверяет аутентификацию пользователя при каждом запросе, обновление данных социального аккаунта, обработка логики "remember me", выполняет required actions (например, подтверждение email)
+)
+```
+
+- `django.contrib.site`: allauth хранит настройки социальных провайдеров (CLIENT_ID, SECRET_KEY) привязанными к конкретному `SITE_ID`. Это позволяет на одном Django-проекте держать несколько сайтов с разными настройками входа.
+  
+- `django.template.context_processors.request`: для определения текущего домена (`request.get_host()`), проверки HTTPS (`request.is_secure()`), доступа к сессии пользователя.
+  
+- `AuthenticationBackend`: позволяет входить в систему не только по username, но и по email (стандартный бэкенд этого не умеет).
+
+- Зачем нужен `SITE_ID = 1`: ID текущего сайта в таблице django_sites нужен allauth для получения из БД настроек социальных провайдеров для сайта с id = 'SITE_ID'
+```sql
+-- Таблица django_site
+SELECT * FROM django_site WHERE id = 1;
+
+-- id | domain | name
+-- 1 | localhost:8000 | localhost
+```
+
+- `allauth.account.middleware.AccountMiddleware`: проверяет аутентификацию пользователя при каждом запросе, обновляет данные социального аккаунта, обрабатывает логику "remember me", выполняет required actions (например, подтверждение по email)
+```sql
+-- Таблица django_site
+SELECT * FROM django_site WHERE id = 1;
+
+-- id | domain | name
+-- 1 | localhost:8000 | localhost
+```
+
+## Миграция
+```bash
+python manage.py migrate
+
+# Если таблицы уже были
+python manage.py migrate --run-syncdb
+```
+
+После миграции создаются таблицы
+- `account_emailaddress` - привязанные email к аккаунту
+- `account_emailconfirmation` - подтверждение email
+- `socialaccount_socialaccount` - социальные аккаунты
+- `socialaccount_socialtoken` - токены OAuth
+

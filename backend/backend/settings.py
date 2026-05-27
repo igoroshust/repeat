@@ -34,14 +34,19 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth',  # Базовая система аутентификации Django
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
+    'django.contrib.messages',  # Flash-сообщения (успех/ошибка при входе)
     'django.contrib.staticfiles',
     
-    'django.contrib.sites',
+    'django.contrib.sites',  # Мультисайтовость (таблица django_site)
     'django.contrib.flatpages',
+    
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.yandex',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +59,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -65,9 +72,12 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
+                'django.template.context_processors.debug',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                # allauth
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -127,4 +137,11 @@ STATIC_URL = 'static/'
 
 
 # Authentication
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = '/'
+
+
+# allauth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
