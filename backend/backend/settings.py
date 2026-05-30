@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers',
     'allauth.socialaccount.providers.yandex',
 ]
 
@@ -73,11 +74,9 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
-                # allauth
-                'django.template.context_processors.request',
             ],
         },
     },
@@ -135,13 +134,10 @@ SITE_ID = 1
 
 STATIC_URL = 'static/'
 
-
-# Authentication
+# Auth
 LOGIN_REDIRECT_URL = '/'
 
-
-# allauth
-AUTHENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = {
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-]
+}
