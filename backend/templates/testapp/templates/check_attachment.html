@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; }
+        .result { padding: 15px; border: 1px solid #ccc; }
+        .not_found { background: #ffe6e6; border-color: #ff6666; }
+        .not_attached { background: #fff4e6; border-color: #ffaa66; }
+        .attached { background: #e6ffe6; border-color: #66aa66; }
+    </style>
+</head>
+
+<body>
+    <h2>Проверка прикрепления к мед.организации</h2>
+    
+    <form method="get">
+        <h3>Поиск по номеру полиса (ЕНП):</h3>
+        <input type="text" name="enp" placeholder="ЕНП (16 символов)">
+        
+        <h3>или по ФИО и дате рождения:</h3>
+        <label>Фамилия: <input type="text" name="fam"></label><br>
+        <label>Имя: <input type="text" name="im"></label><br>
+        <label>Дата рождения (ДД.ММ.ГГГГ): <input type="text" name="dr" placeholder="01.01.1990"></label><br>
+        
+        <button type="submit">Проверить</button>
+    </form>
+    
+    {% if result %}
+    <div class="result {{ result.status }}">
+        <h3>Результат:</h3>
+        
+        {% if result.status == 'not_found' %}
+            <p style="color: red;"><strong>{{ result.message }}</strong></p>
+            
+        {% else %}
+            <p><strong>{{ result.person.fio }}, {{ result.person.dr }}</strong></p>
+            <p>{{ result.message }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+
+</html>

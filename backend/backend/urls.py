@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from testapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,4 +24,6 @@ urlpatterns = [
     # path('auth/', include('auth.urls')),
     path('auth/', include('allauth.urls')),
     path('flatpages/', include('django.contrib.flatpages.urls')),
+    
+    path('check/', views.check_attachment, name='check_attachment'),
 ]
