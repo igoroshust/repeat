@@ -11,12 +11,12 @@ def check_attachment(request):
     context = {'result': None}
     
     # Получаем параметры из GET-запроса
-    input_enp = request.GET.get('enp', '').strip()
-    input_fam = request.GET.get('fam', '').strip()
-    input_im = request.GET.get('im', '').strip()
-    input_ot = request.GET.get('ot', '').strip()
-    input_dr = request.GET.get('dr', '').strip()
-    
+    input_enp = request.POST.get('enp', '').strip()
+    input_fam = request.POST.get('fam', '').strip()
+    input_im = request.POST.get('im', '').strip()
+    input_ot = request.POST.get('ot', '').strip()
+    input_dr = request.POST.get('dr', '').strip()
+        
     # 1. Поиск человека: либо по ЕНП, либо по ФИО + дата рождения
     person = None
     
