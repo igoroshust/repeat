@@ -19,6 +19,7 @@
     <h2>Проверка прикрепления к мед.организации</h2>
     
     <form method="get">
+        {% csrf_token %}
         <h3>Поиск по номеру полиса (ЕНП):</h3>
         <input type="text" name="enp" placeholder="ЕНП (16 символов)">
         

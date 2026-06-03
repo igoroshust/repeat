@@ -86,7 +86,7 @@ def check_attachment(request):
                     nom_podr=hist.district
                 ).first()
                 result['district'] = district.nam_mo if district else None
-            
+                
             # Участок (T007)
             if hist.subdiv:
                 subdiv = T007.objects.filter(
@@ -98,7 +98,7 @@ def check_attachment(request):
         result['status'] = 'attached'
         
         # Формируем сообщение
-        msg_parts = [f"прикреплена к {result['lpu']}"]
+        msg_parts = [f"прикреплен(-a) к {result['lpu']}"]
         if result['district']:
             msg_parts.append(result['district'])
         if result['subdiv']:
