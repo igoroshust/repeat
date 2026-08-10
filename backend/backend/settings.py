@@ -39,17 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',  # Flash-сообщения (успех/ошибка при входе)
     'django.contrib.staticfiles',
-    
-    'django.contrib.sites',  # Мультисайтовость (таблица django_site)
-    'django.contrib.flatpages',
-    
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers',
-    'allauth.socialaccount.providers.yandex',
-    
-    'testapp',
 ]
 
 MIDDLEWARE = [
@@ -60,10 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -95,10 +80,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    # 'testdb': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'testdb.sqlite3',
-    # },
 }
 
 
@@ -132,18 +113,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-SITE_ID = 1
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
-# Auth
-LOGIN_REDIRECT_URL = '/'
-
-AUTHENTICATION_BACKENDS = {
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-}
